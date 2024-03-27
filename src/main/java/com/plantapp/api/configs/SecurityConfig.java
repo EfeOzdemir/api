@@ -2,6 +2,7 @@ package com.plantapp.api.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,7 +24,9 @@ public class SecurityConfig {
                         ))
                 .authorizeHttpRequests(matcherRegistry ->
                         matcherRegistry
-                                .requestMatchers("/community").authenticated()
+                                .requestMatchers("/community/").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/community/*/likes").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/community/*").authenticated()
                                 .anyRequest().permitAll()).build();
     }
 }

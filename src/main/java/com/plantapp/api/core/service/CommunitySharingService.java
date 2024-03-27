@@ -2,37 +2,74 @@ package com.plantapp.api.core.service;
 
 import com.plantapp.api.core.dto.NewSharingRequest;
 import com.plantapp.api.core.entity.CommunitySharing;
+import com.plantapp.api.core.entity.User;
+import com.plantapp.api.core.exception.CommunitySharingNotFoundException;
 import com.plantapp.api.core.repository.CommunitySharingRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CommunitySharingService {
+
     private final ImageService imageService;
+    private final EntityManager entityManager;
     private final CommunitySharingRepository communitySharingRepository;
 
+    public List<CommunitySharing> getAllCommunitySharing() {
+        return communitySharingRepository.findAll();
+    }
 
-    public void share(NewSharingRequest newSharingRequest) {
+    public CommunitySharing getCommunitySharing(Long id) {
+        return communitySharingRepository.findById(id).orElseThrow(() ->
+                new CommunitySharingNotFoundException("Community sharing with id not found!"));
+    }
 
-        if(newSharingRequest.image().isEmpty())
-            throw new RuntimeException();
+    public List<User> getCommunitySharingLikedBys(Long id) {
+        CommunitySharing communitySharing = communitySharingRepository
+                .findById(id).orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
+        return communitySharing.getLikedBy().stream().toList();
+    }
 
+    public CommunitySharing createCommunitySharing(NewSharingRequest newSharingRequest) {
         try {
             String imgUrl = imageService.saveImage(newSharingRequest.title(), newSharingRequest.image());
             CommunitySharing communitySharing =
                     CommunitySharing.builder()
                             .title(newSharingRequest.title())
                             .content(newSharingRequest.content())
-                            .imageUrl(imgUrl)
-                            .build();
-            communitySharing = communitySharingRepository.save(communitySharing);
+                            .imageUrl(imgUrl).build();
+            return communitySharingRepository.save(communitySharing);
         }
-        catch (RuntimeException e) {
-            e.printStackTrace();
+        catch (IllegalArgumentException e) {
+            throw new ValidationException("Validation failed with error message: " + e.getMessage());
         }
+    }
 
-        System.out.println();
+    public void likeCommunitySharing(Long id) {
+        Optional<CommunitySharing> communitySharingOptional = communitySharingRepository.findById(id);
+        CommunitySharing communitySharing = communitySharingOptional
+                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
+
+        User user = entityManager.getReference(User.class, SecurityContextHolder.getContext().getAuthentication().getName());
+
+        if(communitySharing.isLikedBy(user)) communitySharing.likeBy(user);
+        else communitySharing.unlikeBy(user);
+    }
+
+    public void deleteCommunitySharing(Long id) {
+        CommunitySharing communitySharing = communitySharingRepository.findById(id)
+                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
+        if(communitySharing.getCreatedBy().getId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+            communitySharingRepository.deleteById(id);
+        throw new AccessDeniedException("Access denied!");
     }
 
 }
