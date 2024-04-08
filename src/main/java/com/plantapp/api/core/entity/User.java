@@ -1,13 +1,20 @@
 package com.plantapp.api.core.entity;
 
+import com.plantapp.api.core.enums.Gender;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -18,20 +25,21 @@ public class User {
     @Column(nullable = false, length = 100)
     private String username;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String email;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
-    private List<CommunitySharing> communitySharings = new ArrayList<>();
-
     @Column(nullable = false, length = 6)
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(nullable = false, length = 25)
     private String city;
 
     @Column(length = 75)
     private String occupation;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
+    private List<CommunitySharing> communitySharings = new ArrayList<>();
 
     @ManyToMany(mappedBy = "likedBy")
     private List<CommunitySharing> likes;
