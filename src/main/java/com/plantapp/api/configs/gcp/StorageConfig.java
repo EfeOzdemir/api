@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class StorageConfig {
 
-    @Value("gcp.storage.projectId")
+    @Value("${gcp.storage.projectId}")
     private String projectId;
 
     @Bean

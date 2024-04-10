@@ -39,7 +39,6 @@ public class CommunitySharingService {
     }
 
     public CommunitySharing createCommunitySharing(NewSharingRequest newSharingRequest) {
-        CommunitySharing persistedCommunitySharing = null;
         try {
             String imgUrl = cloudStorageService.upload(newSharingRequest.image(), newSharingRequest.title());
             CommunitySharing communitySharing =
@@ -47,15 +46,9 @@ public class CommunitySharingService {
                             .title(newSharingRequest.title())
                             .content(newSharingRequest.content())
                             .imageUrl(imgUrl).build();
-            persistedCommunitySharing = communitySharingRepository.save(communitySharing);
-            return persistedCommunitySharing;
+            return communitySharingRepository.save(communitySharing);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        finally {
-            if(persistedCommunitySharing != null) {
-                communitySharingRepository.delete(persistedCommunitySharing);
-            }
         }
     }
 

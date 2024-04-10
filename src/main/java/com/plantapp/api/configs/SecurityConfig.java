@@ -19,7 +19,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->
                         httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> jwtConfigurer.jwkSetUri(
-                                        "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_rONDSjKKi/.well-known/jwks.json"
+                                       "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"
                                 )
                         ))
                 .authorizeHttpRequests(matcherRegistry ->

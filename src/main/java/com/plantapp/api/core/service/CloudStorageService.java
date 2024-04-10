@@ -17,21 +17,25 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class CloudStorageService {
 
-    @Value("gcp.storage.bucketName")
+    @Value("${gcp.storage.bucketName}")
     private String bucketName;
     private final Storage storage;
 
     public String upload(MultipartFile file, String key) throws IOException {
         BlobId blobId = BlobId.of(bucketName, getImageName(key));
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/jpeg").build();
         byte[] content = file.getBytes();
-        storage.createFrom(blobInfo, new ByteArrayInputStream(content));
-        return blobInfo.getMediaLink();
+        blobInfo = storage.createFrom(blobInfo, new ByteArrayInputStream(content));
+        return generatePublicUrl(blobInfo.getName());
     }
 
     private String getImageName(String key) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         return String.format("%s:%s:%s", userId, key, Instant.now().toString());
+    }
+
+    private String generatePublicUrl(String objectName) {
+        return String.format("https://storage.googleapis.com/%s/%s", bucketName, objectName);
     }
 
 }
