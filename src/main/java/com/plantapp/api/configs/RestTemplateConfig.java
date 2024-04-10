@@ -1,5 +1,6 @@
 package com.plantapp.api.configs;
 
+import com.plantapp.api.configs.properties.HFConfigProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -10,11 +11,11 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class RestTemplateConfig {
 
-    private final HFConfig hfConfig;
+    private final HFConfigProperties hfConfigProperties;
 
     @Bean
     public RestTemplate hfRestTemplate() {
         return new RestTemplateBuilder()
-                .defaultHeader("Authorization", "Bearer " + hfConfig.token()).rootUri(hfConfig.url()).build();
+                .defaultHeader("Authorization", "Bearer " + hfConfigProperties.token()).rootUri(hfConfigProperties.url()).build();
     }
 }

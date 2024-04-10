@@ -5,7 +5,7 @@ import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.generativeai.ChatSession;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.ResponseHandler;
-import com.plantapp.api.configs.VertexAIConfig;
+import com.plantapp.api.configs.properties.VertexAIConfigProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +18,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final VertexAIConfig vertexAIConfig;
+    private final VertexAIConfigProperties vertexAIConfigProperties;
 
     public Map<String, String> chat(List<String> prompts) {
-        try (VertexAI vertexAI = new VertexAI(vertexAIConfig.projectId(), vertexAIConfig.location())) {
-            GenerativeModel model = new GenerativeModel(vertexAIConfig.modelName(), vertexAI);
+        try (VertexAI vertexAI = new VertexAI(vertexAIConfigProperties.projectId(), vertexAIConfigProperties.location())) {
+            GenerativeModel model = new GenerativeModel(vertexAIConfigProperties.modelName(), vertexAI);
             Map<String, String> results = new HashMap<>();
 
             prompts.parallelStream().forEach(prompt -> {

@@ -1,4 +1,4 @@
-package com.plantapp.api.configs;
+package com.plantapp.api.configs.gcp;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;

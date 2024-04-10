@@ -6,12 +6,12 @@ import com.plantapp.api.core.entity.User;
 import com.plantapp.api.core.exception.CommunitySharingNotFoundException;
 import com.plantapp.api.core.repository.CommunitySharingRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CommunitySharingService {
 
-    private final ImageService imageService;
+    private final CloudStorageService cloudStorageService;
     private final EntityManager entityManager;
     private final CommunitySharingRepository communitySharingRepository;
 
@@ -39,17 +39,23 @@ public class CommunitySharingService {
     }
 
     public CommunitySharing createCommunitySharing(NewSharingRequest newSharingRequest) {
+        CommunitySharing persistedCommunitySharing = null;
         try {
-            String imgUrl = imageService.saveImage(newSharingRequest.title(), newSharingRequest.image());
+            String imgUrl = cloudStorageService.upload(newSharingRequest.image(), newSharingRequest.title());
             CommunitySharing communitySharing =
                     CommunitySharing.builder()
                             .title(newSharingRequest.title())
                             .content(newSharingRequest.content())
                             .imageUrl(imgUrl).build();
-            return communitySharingRepository.save(communitySharing);
+            persistedCommunitySharing = communitySharingRepository.save(communitySharing);
+            return persistedCommunitySharing;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        catch (IllegalArgumentException e) {
-            throw new ValidationException("Validation failed with error message: " + e.getMessage());
+        finally {
+            if(persistedCommunitySharing != null) {
+                communitySharingRepository.delete(persistedCommunitySharing);
+            }
         }
     }
 
