@@ -64,6 +64,10 @@
 			<version>9.2.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-storage</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -72,11 +76,11 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<artifactId>libraries-bom</artifactId>
 				<groupId>com.google.cloud</groupId>
-				<scope>import</scope>
+				<artifactId>libraries-bom</artifactId>
+				<version>26.34.0</version>
 				<type>pom</type>
-				<version>26.29.0</version>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

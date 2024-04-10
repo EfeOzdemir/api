@@ -2,9 +2,9 @@ package com.plantapp.api.core.service;
 
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
-import com.google.cloud.vertexai.generativeai.preview.ChatSession;
-import com.google.cloud.vertexai.generativeai.preview.GenerativeModel;
-import com.google.cloud.vertexai.generativeai.preview.ResponseHandler;
+import com.google.cloud.vertexai.generativeai.ChatSession;
+import com.google.cloud.vertexai.generativeai.GenerativeModel;
+import com.google.cloud.vertexai.generativeai.ResponseHandler;
 import com.plantapp.api.configs.VertexAIConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class ChatService {
     private final VertexAIConfig vertexAIConfig;
 
     public Map<String, String> chat(List<String> prompts) {
-        try (VertexAI vertexAI = new VertexAI(vertexAIConfig.projectId(), vertexAIConfig.location())) {;
+        try (VertexAI vertexAI = new VertexAI(vertexAIConfig.projectId(), vertexAIConfig.location())) {
             GenerativeModel model = new GenerativeModel(vertexAIConfig.modelName(), vertexAI);
             Map<String, String> results = new HashMap<>();
 
@@ -34,11 +34,7 @@ public class ChatService {
                     throw new RuntimeException(e.getMessage());
                 }
             });
-
             return results;
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
         }
     }
 }
