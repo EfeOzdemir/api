@@ -3,7 +3,7 @@ package com.plantapp.api.core.service;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
-import com.plantapp.api.core.dto.CreateUserRequest;
+import com.plantapp.api.core.model.request.CreateUserRequest;
 import com.plantapp.api.core.entity.User;
 import com.plantapp.api.core.enums.Gender;
 import com.plantapp.api.core.repository.UserRepository;

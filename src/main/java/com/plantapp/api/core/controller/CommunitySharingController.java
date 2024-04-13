@@ -1,9 +1,9 @@
 package com.plantapp.api.core.controller;
 
-import com.plantapp.api.core.dto.APIResponse;
-import com.plantapp.api.core.dto.NewSharingRequest;
-import com.plantapp.api.core.entity.CommunitySharing;
-import com.plantapp.api.core.entity.User;
+import com.plantapp.api.core.model.projections.CommunitySharingProjection;
+import com.plantapp.api.core.model.projections.UserProjection;
+import com.plantapp.api.core.model.request.NewSharingRequest;
+import com.plantapp.api.core.model.response.APIResponse;
 import com.plantapp.api.core.service.CommunitySharingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,28 +28,28 @@ public class CommunitySharingController {
     @Operation(summary = "Creates a new community sharing.")
     @PostMapping(path = "/")
     @ResponseStatus(HttpStatus.CREATED)
-    public APIResponse<CommunitySharing> saveCommunitySharing(@ModelAttribute @Valid NewSharingRequest newSharingRequest) {
+    public APIResponse<CommunitySharingProjection> saveCommunitySharing(@ModelAttribute @Valid NewSharingRequest newSharingRequest) {
         return new APIResponse<>(HttpStatus.CREATED.value(),
                 HttpStatus.CREATED.getReasonPhrase(), communitySharingService.createCommunitySharing(newSharingRequest));
     }
 
     @Operation(summary = "Gets all community sharings.")
     @GetMapping(path = "/")
-    public APIResponse<List<CommunitySharing>> getAllCommunitySharing() {
+        public APIResponse<List<CommunitySharingProjection>> getAllCommunitySharing() {
         return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getAllCommunitySharing());
     }
 
     @Operation(summary = "Gets a community sharing with id.")
     @GetMapping(value = "/{id}")
-    public APIResponse<CommunitySharing> getCommunitySharing(@NotNull @PathVariable Long id) {
+    public APIResponse<CommunitySharingProjection> getCommunitySharing(@NotNull @PathVariable Long id) {
         return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getCommunitySharing(id));
     }
 
     @Operation(summary = "Get users who likes the community sharing with id.")
     @GetMapping(value = "/{id}/likes")
-    public APIResponse<List<User>> getLikesOfCommunitySharing(@NotNull @PathVariable Long id) {
+    public APIResponse<List<UserProjection>> getLikesOfCommunitySharing(@NotNull @PathVariable Long id) {
         return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(),
-                communitySharingService.getCommunitySharingLikedBys(id));
+                communitySharingService.getUsersWhoLikeCommunitySharingById(id));
     }
 
     @SecurityRequirement(name = "jwt-token")

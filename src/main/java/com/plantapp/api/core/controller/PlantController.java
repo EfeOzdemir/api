@@ -1,6 +1,6 @@
 package com.plantapp.api.core.controller;
 
-import com.plantapp.api.core.dto.ModelResponse;
+import com.plantapp.api.core.model.response.ModelResponse;
 import com.plantapp.api.core.service.PlantModelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

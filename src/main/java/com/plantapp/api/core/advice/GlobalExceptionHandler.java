@@ -1,6 +1,6 @@
 package com.plantapp.api.core.advice;
 
-import com.plantapp.api.core.dto.ErrorResponse;
+import com.plantapp.api.core.model.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;

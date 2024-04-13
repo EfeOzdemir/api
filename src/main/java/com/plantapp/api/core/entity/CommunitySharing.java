@@ -1,8 +1,12 @@
 package com.plantapp.api.core.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -15,6 +19,8 @@ import java.util.Set;
 @Getter
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class CommunitySharing {
 
@@ -30,7 +36,8 @@ public class CommunitySharing {
     private String content;
 
     @CreatedBy
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private User createdBy;
 
     @Column(nullable = false)
@@ -44,7 +51,8 @@ public class CommunitySharing {
             joinColumns = @JoinColumn(name = "community_sharing_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> likedBy;
+    @JsonBackReference
+    private Set<User> usersWhoLike;
 
     @CreatedDate
     private Instant createdAt;
@@ -53,17 +61,17 @@ public class CommunitySharing {
     private Instant updatedAt;
 
     public void likeBy(User user) {
-        this.likedBy.add(user);
+        this.usersWhoLike.add(user);
         user.getLikes().add(this);
     }
 
     public void unlikeBy(User user) {
-        this.likedBy.remove(user);
+        this.usersWhoLike.remove(user);
         user.getLikes().remove(this);
     }
 
     public boolean isLikedBy(User user) {
-        return likedBy.contains(user);
+        return usersWhoLike.contains(user);
     }
 
     @Override

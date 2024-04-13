@@ -24,9 +24,9 @@ public class SecurityConfig {
                         ))
                 .authorizeHttpRequests(matcherRegistry ->
                         matcherRegistry
-                                .requestMatchers("/community/").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/community/*/likes").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/community/*").authenticated()
+                                .requestMatchers("/community/").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/community/**").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/community/**").authenticated()
                                 .anyRequest().permitAll()).build();
     }
 }

@@ -1,15 +1,20 @@
 package com.plantapp.api.core.service;
 
-import com.plantapp.api.core.dto.NewSharingRequest;
 import com.plantapp.api.core.entity.CommunitySharing;
 import com.plantapp.api.core.entity.User;
 import com.plantapp.api.core.exception.CommunitySharingNotFoundException;
+import com.plantapp.api.core.model.projections.CommunitySharingProjection;
+import com.plantapp.api.core.model.projections.UserProjection;
+import com.plantapp.api.core.model.request.NewSharingRequest;
 import com.plantapp.api.core.repository.CommunitySharingRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,22 +28,22 @@ public class CommunitySharingService {
     private final EntityManager entityManager;
     private final CommunitySharingRepository communitySharingRepository;
 
-    public List<CommunitySharing> getAllCommunitySharing() {
-        return communitySharingRepository.findAll();
+    public List<CommunitySharingProjection> getAllCommunitySharing() {
+        return communitySharingRepository.findAllListing();
     }
 
-    public CommunitySharing getCommunitySharing(Long id) {
-        return communitySharingRepository.findById(id).orElseThrow(() ->
-                new CommunitySharingNotFoundException("Community sharing with id not found!"));
+    public CommunitySharingProjection getCommunitySharing(Long id) {
+        return communitySharingRepository.findByIdWithProjection(id)
+                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing not found!"));
     }
 
-    public List<User> getCommunitySharingLikedBys(Long id) {
-        CommunitySharing communitySharing = communitySharingRepository
-                .findById(id).orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
-        return communitySharing.getLikedBy().stream().toList();
+    public List<UserProjection> getUsersWhoLikeCommunitySharingById(Long id) {
+        if(!communitySharingRepository.existsById(id))
+            throw new CommunitySharingNotFoundException("Community sharing with id not found!");
+        return communitySharingRepository.findUsersWhoLikeById(id);
     }
 
-    public CommunitySharing createCommunitySharing(NewSharingRequest newSharingRequest) {
+    public CommunitySharingProjection createCommunitySharing(NewSharingRequest newSharingRequest) {
         try {
             String imgUrl = cloudStorageService.upload(newSharingRequest.image(), newSharingRequest.title());
             CommunitySharing communitySharing =
@@ -46,21 +51,26 @@ public class CommunitySharingService {
                             .title(newSharingRequest.title())
                             .content(newSharingRequest.content())
                             .imageUrl(imgUrl).build();
-            return communitySharingRepository.save(communitySharing);
+            communitySharing = communitySharingRepository.save(communitySharing);
+            ProjectionFactory pf = new SpelAwareProxyProjectionFactory();
+            return pf.createProjection(CommunitySharingProjection.class, communitySharing);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Transactional
     public void likeCommunitySharing(Long id) {
         Optional<CommunitySharing> communitySharingOptional = communitySharingRepository.findById(id);
         CommunitySharing communitySharing = communitySharingOptional
                 .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
 
-        User user = entityManager.getReference(User.class, SecurityContextHolder.getContext().getAuthentication().getName());
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = entityManager.getReference(User.class, userId);
 
-        if(communitySharing.isLikedBy(user)) communitySharing.likeBy(user);
-        else communitySharing.unlikeBy(user);
+        if(communitySharing.isLikedBy(user))
+            communitySharing.unlikeBy(user);
+        else communitySharing.likeBy(user);
     }
 
     public void deleteCommunitySharing(Long id) {
@@ -68,7 +78,8 @@ public class CommunitySharingService {
                 .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
         if(communitySharing.getCreatedBy().getId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
             communitySharingRepository.deleteById(id);
-        throw new AccessDeniedException("Access denied!");
+        else
+            throw new AccessDeniedException("Access denied!");
     }
 
 }

@@ -1,4 +1,4 @@
-package com.plantapp.api.core.dto;
+package com.plantapp.api.core.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

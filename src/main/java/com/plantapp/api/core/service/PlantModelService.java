@@ -1,7 +1,7 @@
 package com.plantapp.api.core.service;
 
-import com.plantapp.api.core.dto.HuggingFaceResponse;
-import com.plantapp.api.core.dto.ModelResponse;
+import com.plantapp.api.core.model.response.HuggingFaceResponse;
+import com.plantapp.api.core.model.response.ModelResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

@@ -1,4 +1,4 @@
-package com.plantapp.api.core.dto;
+package com.plantapp.api.core.model.response;
 
 import java.time.Instant;
 

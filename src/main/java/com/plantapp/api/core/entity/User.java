@@ -1,5 +1,6 @@
 package com.plantapp.api.core.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.plantapp.api.core.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,10 +39,12 @@ public class User {
     @Column(length = 75)
     private String occupation;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
+    @OneToMany(mappedBy = "createdBy")
+    @JsonBackReference
     private List<CommunitySharing> communitySharings = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "likedBy")
+    @ManyToMany(mappedBy = "usersWhoLike")
+    @JsonBackReference
     private List<CommunitySharing> likes;
 
     @Override

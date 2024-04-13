@@ -1,7 +1,7 @@
 package com.plantapp.api.core.controller;
 
 import com.google.firebase.auth.UserRecord;
-import com.plantapp.api.core.dto.CreateUserRequest;
+import com.plantapp.api.core.model.request.CreateUserRequest;
 import com.plantapp.api.core.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

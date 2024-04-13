@@ -1,6 +1,6 @@
 package com.plantapp.api.core.service;
 
-import com.plantapp.api.core.dto.HuggingFaceResponse;
+import com.plantapp.api.core.model.response.HuggingFaceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
