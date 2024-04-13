@@ -47,6 +47,9 @@ public class User {
     @JsonBackReference
     private List<CommunitySharing> likes;
 
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments;
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

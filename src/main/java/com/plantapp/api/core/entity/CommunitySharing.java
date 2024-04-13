@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -52,6 +53,9 @@ public class CommunitySharing {
     )
     @JsonBackReference
     private Set<User> usersWhoLike;
+
+    @OneToMany(mappedBy = "communitySharing")
+    private List<Comment> comments;
 
     @CreatedDate
     private Instant createdAt;

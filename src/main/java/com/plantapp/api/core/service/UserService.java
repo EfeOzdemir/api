@@ -25,7 +25,6 @@ public class UserService {
 
         UserRecord userRecord = null;
         User user;
-
         try {
             userRecord = firebaseAuth.createUser(createRequest);
             user = User.builder()
