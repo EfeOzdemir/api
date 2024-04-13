@@ -25,8 +25,7 @@ import java.util.Set;
 public class CommunitySharing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COMMUNITY_SHARING_ID_SEQUENCE")
-    @SequenceGenerator(name = "COMMUNITY_SHARING_ID_SEQUENCE", sequenceName = "COMMUNITY_SHARING_ID_SEQUENCE", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -59,6 +58,16 @@ public class CommunitySharing {
 
     @LastModifiedDate
     private Instant updatedAt;
+
+    @Transient
+    public Boolean getIsLiked() {
+        return false;
+    }
+
+    @Transient
+    public Integer getLikeCount() {
+        return 0;
+    }
 
     public void likeBy(User user) {
         this.usersWhoLike.add(user);

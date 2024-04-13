@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Tag(name = "Community API", description = "Community sharing api endpoints.")
@@ -35,14 +36,14 @@ public class CommunitySharingController {
 
     @Operation(summary = "Gets all community sharings.")
     @GetMapping(path = "/")
-        public APIResponse<List<CommunitySharingProjection>> getAllCommunitySharing() {
-        return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getAllCommunitySharing());
+        public APIResponse<List<CommunitySharingProjection>> getAllCommunitySharing(@Nullable @RequestParam("user_id") String userId) {
+        return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getAllCommunitySharing(userId));
     }
 
     @Operation(summary = "Gets a community sharing with id.")
     @GetMapping(value = "/{id}")
-    public APIResponse<CommunitySharingProjection> getCommunitySharing(@NotNull @PathVariable Long id) {
-        return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getCommunitySharing(id));
+    public APIResponse<CommunitySharingProjection> getCommunitySharing(@NotNull @PathVariable Long id, @Nullable @RequestParam("user_id") String userId) {
+        return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getCommunitySharing(id, userId));
     }
 
     @Operation(summary = "Get users who likes the community sharing with id.")

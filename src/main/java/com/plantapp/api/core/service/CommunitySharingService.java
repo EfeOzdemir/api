@@ -28,12 +28,14 @@ public class CommunitySharingService {
     private final EntityManager entityManager;
     private final CommunitySharingRepository communitySharingRepository;
 
-    public List<CommunitySharingProjection> getAllCommunitySharing() {
-        return communitySharingRepository.findAllListing();
+    public List<CommunitySharingProjection> getAllCommunitySharing(String userId) {
+        User userRef = getUserReference(userId);
+        return communitySharingRepository.findAllListing(userRef);
     }
 
-    public CommunitySharingProjection getCommunitySharing(Long id) {
-        return communitySharingRepository.findByIdWithProjection(id)
+    public CommunitySharingProjection getCommunitySharing(Long id, String userId) {
+        User userRef = getUserReference(userId);
+        return communitySharingRepository.findByIdWithProjection(id, userRef)
                 .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing not found!"));
     }
 
@@ -80,6 +82,10 @@ public class CommunitySharingService {
             communitySharingRepository.deleteById(id);
         else
             throw new AccessDeniedException("Access denied!");
+    }
+
+    private User getUserReference(String userId) {
+        return userId != null ? entityManager.getReference(User.class, userId) : null;
     }
 
 }

@@ -12,4 +12,5 @@ public interface CommunitySharingProjection {
     Instant getCreatedAt();
     Instant getUpdatedAt();
     Integer getLikeCount();
+    Boolean getIsLiked();
 }
