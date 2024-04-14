@@ -1,7 +1,7 @@
 package com.plantapp.api.core.controller;
 
-import com.plantapp.api.core.model.projections.CommunitySharingProjection;
-import com.plantapp.api.core.model.projections.UserProjection;
+import com.plantapp.api.core.model.CSharingDto;
+import com.plantapp.api.core.model.UserDto;
 import com.plantapp.api.core.model.request.NewSharingRequest;
 import com.plantapp.api.core.model.response.APIResponse;
 import com.plantapp.api.core.service.CommunitySharingService;
@@ -29,26 +29,26 @@ public class CommunitySharingController {
     @Operation(summary = "Creates a new community sharing.")
     @PostMapping(path = "/")
     @ResponseStatus(HttpStatus.CREATED)
-    public APIResponse<CommunitySharingProjection> saveCommunitySharing(@ModelAttribute @Valid NewSharingRequest newSharingRequest) {
+    public APIResponse<CSharingDto> saveCommunitySharing(@ModelAttribute @Valid NewSharingRequest newSharingRequest) {
         return new APIResponse<>(HttpStatus.CREATED.value(),
                 HttpStatus.CREATED.getReasonPhrase(), communitySharingService.createCommunitySharing(newSharingRequest));
     }
 
     @Operation(summary = "Gets all community sharings.")
     @GetMapping(path = "/")
-        public APIResponse<List<CommunitySharingProjection>> getAllCommunitySharing(@Nullable @RequestParam("user_id") String userId) {
+        public APIResponse<List<CSharingDto>> getAllCommunitySharing(@Nullable @RequestParam("user_id") String userId) {
         return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getAllCommunitySharing(userId));
     }
 
     @Operation(summary = "Gets a community sharing with id.")
     @GetMapping(value = "/{id}")
-    public APIResponse<CommunitySharingProjection> getCommunitySharing(@NotNull @PathVariable Long id, @Nullable @RequestParam("user_id") String userId) {
+    public APIResponse<CSharingDto> getCommunitySharing(@NotNull @PathVariable Long id, @Nullable @RequestParam("user_id") String userId) {
         return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), communitySharingService.getCommunitySharing(id, userId));
     }
 
     @Operation(summary = "Get users who likes the community sharing with id.")
     @GetMapping(value = "/{id}/likes")
-    public APIResponse<List<UserProjection>> getLikesOfCommunitySharing(@NotNull @PathVariable Long id) {
+    public APIResponse<List<UserDto>> getLikesOfCommunitySharing(@NotNull @PathVariable Long id) {
         return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(),
                 communitySharingService.getUsersWhoLikeCommunitySharingById(id));
     }
