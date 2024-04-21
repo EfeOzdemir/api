@@ -1,86 +1,69 @@
 package com.plantapp.api.core.service;
 
 import com.plantapp.api.core.entity.CommunitySharing;
-import com.plantapp.api.core.entity.User;
 import com.plantapp.api.core.exception.CommunitySharingNotFoundException;
-import com.plantapp.api.core.model.CSharingDto;
-import com.plantapp.api.core.model.UserDto;
+import com.plantapp.api.core.model.dto.CSharingDto;
 import com.plantapp.api.core.model.request.NewSharingRequest;
+import com.plantapp.api.core.model.response.PagedResponse;
 import com.plantapp.api.core.repository.CommunitySharingRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
 public class CommunitySharingService {
 
-    @PersistenceContext
-    private final EntityManager entityManager;
     private final CloudStorageService cloudStorageService;
     private final CommunitySharingRepository communitySharingRepository;
 
-    public List<CSharingDto> getAllCommunitySharing(String userId) {
-        return communitySharingRepository.findAllSharing(userId);
+    public PagedResponse<CSharingDto> getAllCommunitySharing(Pageable pageable, String userId) {
+        Page<CSharingDto> paged = communitySharingRepository.findAllSharing(userId, pageable);
+        return PagedResponse.<CSharingDto>builder()
+                .content(paged.getContent())
+                .currentPage(paged.getNumber())
+                .pageSize(paged.getSize())
+                .totalPages(paged.getTotalPages())
+                .hasNext(paged.getTotalPages() > (paged.getNumber() + 1))
+                .build();
     }
 
-    @Transactional
-    public CSharingDto getCommunitySharing(Long id, String userId) {
-        CommunitySharing communitySharing = communitySharingRepository.findById(id)
-                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing not found!"));;
-        return CSharingDto.of(communitySharing, entityManager.getReference(User.class, userId));
-    }
-
-    public List<UserDto> getUsersWhoLikeCommunitySharingById(Long id) {
-        if(!communitySharingRepository.existsById(id))
-            throw new CommunitySharingNotFoundException("Community sharing with id not found!");
-        return communitySharingRepository.findUsersWhoLike(id);
+    public CSharingDto getCommunitySharingById(Long postId, String userId) {
+        return communitySharingRepository.findById(postId, userId)
+                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing not found!"));
     }
 
     public CSharingDto createCommunitySharing(NewSharingRequest newSharingRequest) {
         try {
-            String imgUrl = cloudStorageService.upload(newSharingRequest.image(), newSharingRequest.title());
-            CommunitySharing communitySharing =
-                    CommunitySharing.builder()
-                            .title(newSharingRequest.title())
-                            .content(newSharingRequest.content())
-                            .imageUrl(imgUrl).build();
+            String imageKey = cloudStorageService.generateRandomKey();
+            String imageURL = cloudStorageService.generatePublicUrl(imageKey);
+
+            CompletableFuture<Boolean> uploadStatus = cloudStorageService.upload(newSharingRequest.image(), imageKey);
+            CommunitySharing communitySharing = CommunitySharing.builder()
+                    .title(newSharingRequest.title()).content(newSharingRequest.content()).imageUrl(imageURL).build();
             communitySharing = communitySharingRepository.save(communitySharing);
-            return CSharingDto.ofWithDefaults(communitySharing);
+
+            if (uploadStatus.join())
+                return CSharingDto.fromCommunitySharing(communitySharing);
+            throw new RuntimeException();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Transactional
-    public void likeCommunitySharing(Long id) {
-        Optional<CommunitySharing> communitySharingOptional = communitySharingRepository.findById(id);
-        CommunitySharing communitySharing = communitySharingOptional
-                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
+    public void deleteCommunitySharingById(Long id) {
+        String user = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer res = communitySharingRepository.deleteByIdAndCreatedById(id, user);
 
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = entityManager.getReference(User.class, userId);
-
-        if(communitySharing.isLikedBy(user))
-            communitySharing.unlikeBy(user);
-        else communitySharing.likeBy(user);
-    }
-
-    public void deleteCommunitySharing(Long id) {
-        CommunitySharing communitySharing = communitySharingRepository.findById(id)
-                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
-        if(communitySharing.getCreatedBy().getId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
-            communitySharingRepository.deleteById(id);
-        else
-            throw new AccessDeniedException("Access denied!");
+        if (res == 0) {
+            throw new AccessDeniedException("Access denied. Unauthorized access.");
+        }
     }
 
 }

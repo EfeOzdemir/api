@@ -5,13 +5,14 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -21,21 +22,21 @@ public class CloudStorageService {
     private String bucketName;
     private final Storage storage;
 
-    public String upload(MultipartFile file, String key) throws IOException {
-        BlobId blobId = BlobId.of(bucketName, getImageName(key));
+    @Async
+    public CompletableFuture<Boolean> upload(MultipartFile file, String key) throws IOException {
+        BlobId blobId = BlobId.of(bucketName, key);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/jpeg").build();
         byte[] content = file.getBytes();
-        blobInfo = storage.createFrom(blobInfo, new ByteArrayInputStream(content));
-        return generatePublicUrl(blobInfo.getName());
+        storage.createFrom(blobInfo, new ByteArrayInputStream(content));
+        return CompletableFuture.completedFuture(Boolean.TRUE);
     }
 
-    private String getImageName(String key) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        return String.format("%s:%s:%s", userId, key, Instant.now().toString());
-    }
-
-    private String generatePublicUrl(String objectName) {
+    public String generatePublicUrl(String objectName) {
         return String.format("https://storage.googleapis.com/%s/%s", bucketName, objectName);
+    }
+
+    public String generateRandomKey() {
+        return UUID.randomUUID().toString();
     }
 
 }

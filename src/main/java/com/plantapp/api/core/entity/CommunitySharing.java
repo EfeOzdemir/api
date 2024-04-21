@@ -2,10 +2,13 @@ package com.plantapp.api.core.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.plantapp.api.core.model.CSharingDto;
+import com.plantapp.api.core.model.dto.CSharingDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,35 +23,105 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SqlResultSetMapping(
-        name = "list-sharing",
-        classes = {
-                @ConstructorResult(
-                        targetClass = CSharingDto.class,
-                        columns = {
-                                @ColumnResult(name = "id"),
-                                @ColumnResult(name = "title"),
-                                @ColumnResult(name = "content"),
-                                @ColumnResult(name = "imageUrl"),
-                                @ColumnResult(name = "createdAt", type = Instant.class),
-                                @ColumnResult(name = "likeCount", type = Integer.class),
-                                @ColumnResult(name = "commentCount", type = Integer.class),
-                                @ColumnResult(name = "isLiked", type = Boolean.class),
-                                @ColumnResult(name = "userId"),
-                                @ColumnResult(name = "username")
-                        }
-                )
-        }
-)
-@NamedNativeQuery(
-        name = "findAllSharing",
-        query = "SELECT cs.id as id, cs.title as title, cs.content as content, cs.image_url as imageUrl, " +
-                "cs.created_at as createdAt, " + "(SELECT COUNT(user_id) FROM community_likes l WHERE cs.id = l.community_sharing_id) as likeCount, " +
-                "(SELECT COUNT(c.id) FROM comment c WHERE c.community_sharing_id = cs.id) " + "as commentCount, " +
-                "IFNULL((SELECT true FROM community_likes WHERE community_sharing_id = cs.id AND user_id = :userId), false) " +
-                "as isLiked, " + "u.id as userId, u.username as username " + "FROM community_sharing cs " + "LEFT JOIN users u ON cs.created_by_id = u.id",
-        resultSetMapping = "list-sharing"
-)
+@SqlResultSetMappings({
+        @SqlResultSetMapping(
+                name = "list-sharing",
+                classes = {
+                        @ConstructorResult(
+                                targetClass = CSharingDto.class,
+                                columns = {
+                                        @ColumnResult(name = "id"),
+                                        @ColumnResult(name = "title"),
+                                        @ColumnResult(name = "content"),
+                                        @ColumnResult(name = "imageUrl"),
+                                        @ColumnResult(name = "createdAt", type = Instant.class),
+                                        @ColumnResult(name = "likeCount", type = Integer.class),
+                                        @ColumnResult(name = "commentCount", type = Integer.class),
+                                        @ColumnResult(name = "isLiked", type = Boolean.class),
+                                        @ColumnResult(name = "userId"),
+                                        @ColumnResult(name = "username")
+                                }
+                        )
+                }
+        ),
+        @SqlResultSetMapping(name = "list-sharing.count", columns = @ColumnResult(name = "count"))
+})
+@NamedNativeQueries({
+        @NamedNativeQuery(
+                name = "findAllSharing",
+                query = "SELECT " +
+                        "cs.id AS id, " +
+                        "cs.title AS title, " +
+                        "CASE " +
+                        "   WHEN CHAR_LENGTH(cs.content) > 50 THEN CONCAT(TRIM(SUBSTRING(cs.content, 1, 50)), '...') " +
+                        "   ELSE cs.content " +
+                        "END AS content, " +
+                        "cs.image_url AS imageUrl, " +
+                        "cs.created_at AS createdAt, " +
+                        "( " +
+                        "   SELECT COUNT(user_id) " +
+                        "   FROM community_likes l " +
+                        "   WHERE cs.id = l.community_sharing_id " +
+                        ") AS likeCount, " +
+                        "( " +
+                        "   SELECT COUNT(c.id) " +
+                        "   FROM comment c " +
+                        "   WHERE c.community_sharing_id = cs.id " +
+                        ") AS commentCount, " +
+                        "CASE " +
+                        "   WHEN :userId IS NOT NULL THEN IFNULL(( " +
+                        "       SELECT TRUE " +
+                        "       FROM community_likes " +
+                        "       WHERE community_sharing_id = cs.id AND user_id = :userId " +
+                        "   ), FALSE) " +
+                        "   ELSE FALSE " +
+                        "END AS isLiked, " +
+                        "u.id AS userId, " +
+                        "u.username AS username " +
+                        "FROM community_sharing cs " +
+                        "LEFT JOIN users u ON cs.created_by_id = u.id",
+                resultSetMapping = "list-sharing"
+        ),
+        @NamedNativeQuery(
+                name = "findSharingById",
+                query = "SELECT " +
+                        "cs.id AS id, " +
+                        "cs.title AS title, " +
+                        "cs.content AS content, " +
+                        "cs.image_url AS imageUrl, " +
+                        "cs.created_at AS createdAt, " +
+                        "( " +
+                        "   SELECT COUNT(user_id) " +
+                        "   FROM community_likes l " +
+                        "   WHERE cs.id = l.community_sharing_id " +
+                        ") AS likeCount, " +
+                        "( " +
+                        "   SELECT COUNT(c.id) " +
+                        "   FROM comment c " +
+                        "   WHERE c.community_sharing_id = cs.id " +
+                        ") AS commentCount, " +
+                        "CASE " +
+                        "   WHEN :userId IS NOT NULL THEN IFNULL(( " +
+                        "       SELECT TRUE " +
+                        "       FROM community_likes " +
+                        "       WHERE community_sharing_id = cs.id AND user_id = :userId " +
+                        "   ), FALSE) " +
+                        "   ELSE FALSE " +
+                        "END AS isLiked, " +
+                        "u.id AS userId, " +
+                        "u.username AS username " +
+                        "FROM community_sharing cs " +
+                        "LEFT JOIN users u ON cs.created_by_id = u.id " +
+                        "WHERE cs.id = :postId",
+                resultSetMapping = "list-sharing"
+        ),
+        @NamedNativeQuery(
+                name = "findAllSharing.count",
+                query = "SELECT COUNT(*) AS count FROM community_sharing",
+                resultSetMapping = "list-sharing.count"
+        )
+})
+
 @EntityListeners(AuditingEntityListener.class)
 public class CommunitySharing {
 
@@ -113,8 +186,8 @@ public class CommunitySharing {
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
         CommunitySharing communitySharing = (CommunitySharing) obj;
         return Objects.equals(this.id, communitySharing.id);
     }

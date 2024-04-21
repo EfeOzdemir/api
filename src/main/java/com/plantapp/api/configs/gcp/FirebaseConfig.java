@@ -7,7 +7,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 
 @Configuration
@@ -16,15 +15,16 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp firebaseApp() {
-        try (FileInputStream serviceAccount = new FileInputStream("src/plant-app-firebase-adminsdk.json")) {
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+        FirebaseOptions options;
+        try {
+            options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.getApplicationDefault())
                     .build();
-                return FirebaseApp.initializeApp(options);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+
+        return FirebaseApp.initializeApp(options);
     }
 
     @Bean

@@ -25,7 +25,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(matcherRegistry ->
                         matcherRegistry
                                 .requestMatchers("/community/").permitAll()
-                                .requestMatchers("/community/comments/").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/community/**").authenticated()
                                 .requestMatchers(HttpMethod.DELETE, "/community/**").authenticated()
                                 .anyRequest().permitAll()).build();
