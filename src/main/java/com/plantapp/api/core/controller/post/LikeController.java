@@ -1,4 +1,4 @@
-package com.plantapp.api.core.controller;
+package com.plantapp.api.core.controller.post;
 
 import com.plantapp.api.core.model.dto.UserDto;
 import com.plantapp.api.core.model.response.APIResponse;
@@ -14,23 +14,23 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/community")
+@RequestMapping("/posts")
 public class LikeController {
 
     private final LikeService likeService;
 
-    @Operation(summary = "Get users who likes the community sharing with id.")
+    @Operation(summary = "Get users who likes the community post with id.")
     @GetMapping(value = "/{id}/likes")
-    public APIResponse<List<UserDto>> getLikesOfCommunitySharing(@NotNull @PathVariable Long id) {
+    public APIResponse<List<UserDto>> getLikesOfPost(@NotNull @PathVariable Long id) {
         return new APIResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(),
-                likeService.getUsersWhoLikeCommunitySharingById(id));
+                likeService.getUsersWhoLikePostById(id));
     }
 
     @SecurityRequirement(name = "jwt-token")
-    @Operation(summary = "Likes a community sharing if it is not liked, unlikes if it is liked.")
+    @Operation(summary = "Likes a community post if it is not liked, unlikes if it is liked.")
     @PostMapping(value = "/{id}/likes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void likeCommunitySharing(@NotNull @PathVariable Long id) {
-        likeService.likeCommunitySharingById(id);
+    public void likePost(@NotNull @PathVariable Long id) {
+        likeService.likePostById(id);
     }
 }

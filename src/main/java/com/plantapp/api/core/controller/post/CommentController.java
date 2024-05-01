@@ -1,4 +1,4 @@
-package com.plantapp.api.core.controller;
+package com.plantapp.api.core.controller.post;
 
 import com.plantapp.api.core.model.dto.CommentDto;
 import com.plantapp.api.core.model.request.CommentRequest;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/community")
+@RequestMapping("/posts")
 public class CommentController {
 
     private final CommentService commentService;

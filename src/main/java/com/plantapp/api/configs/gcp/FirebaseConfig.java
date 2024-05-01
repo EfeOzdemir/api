@@ -6,15 +6,38 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+
+import static com.google.auth.oauth2.GoogleCredentials.fromStream;
 
 @Configuration
 @SuppressWarnings("unused")
 public class FirebaseConfig {
 
     @Bean
-    public FirebaseApp firebaseApp() {
+    @Profile("dev")
+    public FirebaseApp firebaseAppDev() throws IOException {
+        FirebaseOptions options;
+        try (FileInputStream serviceAccount = new FileInputStream("C:\\Users\\Efe Özdemir\\Desktop\\plant-app.json")) {
+            options = new FirebaseOptions.Builder()
+                    .setCredentials(fromStream(serviceAccount))
+                    .build();
+        }
+        return FirebaseApp.initializeApp(options);
+    }
+
+    @Bean
+    @Profile("dev")
+    public FirebaseAuth firebaseAuthDev() throws IOException {
+        return FirebaseAuth.getInstance(firebaseAppDev());
+    }
+
+    @Bean
+    @Profile("production")
+    public FirebaseApp firebaseAppProduction() {
         FirebaseOptions options;
         try {
             options = FirebaseOptions.builder()
@@ -28,7 +51,8 @@ public class FirebaseConfig {
     }
 
     @Bean
-    public FirebaseAuth firebaseAuth() {
-        return FirebaseAuth.getInstance(firebaseApp());
+    @Profile("production")
+    public FirebaseAuth firebaseAuthProduction() {
+        return FirebaseAuth.getInstance(firebaseAppProduction());
     }
 }

@@ -17,7 +17,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users")
 public class User {
 
     @Id
@@ -41,11 +40,11 @@ public class User {
 
     @OneToMany(mappedBy = "createdBy")
     @JsonBackReference
-    private List<CommunitySharing> communitySharings = new ArrayList<>();
+    private List<Post> posts = new ArrayList<>();
 
     @ManyToMany(mappedBy = "usersWhoLike")
     @JsonBackReference
-    private List<CommunitySharing> likes;
+    private List<Post> likes;
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;

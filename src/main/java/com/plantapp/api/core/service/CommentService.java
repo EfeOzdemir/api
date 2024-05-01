@@ -1,7 +1,7 @@
 package com.plantapp.api.core.service;
 
 import com.plantapp.api.core.entity.Comment;
-import com.plantapp.api.core.entity.CommunitySharing;
+import com.plantapp.api.core.entity.Post;
 import com.plantapp.api.core.entity.User;
 import com.plantapp.api.core.model.dto.CommentDto;
 import com.plantapp.api.core.model.request.CommentRequest;
@@ -37,8 +37,8 @@ public class CommentService {
     public void comment(CommentRequest commentRequest, Long id) {
         String uid = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = entityManager.getReference(User.class, Objects.requireNonNull(uid));
-        CommunitySharing communitySharing = entityManager.getReference(CommunitySharing.class, id);
-        Comment comment = Comment.builder().text(commentRequest.text()).user(user).communitySharing(communitySharing).build();
+        Post post = entityManager.getReference(Post.class, id);
+        Comment comment = Comment.builder().text(commentRequest.text()).user(user).post(post).build();
         commentRepository.save(comment);
     }
 }

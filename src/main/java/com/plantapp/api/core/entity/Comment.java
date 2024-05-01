@@ -18,7 +18,7 @@ public class Comment {
     private User user;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private CommunitySharing communitySharing;
+    private Post post;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String text;

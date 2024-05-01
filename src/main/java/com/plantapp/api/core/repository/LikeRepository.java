@@ -18,7 +18,7 @@ public class LikeRepository {
                 SELECT user.id, user.username
                 FROM community_likes likes
                 JOIN users user ON user.id = likes.user_id
-                WHERE likes.community_sharing_id = :postId
+                WHERE likes.community_post_id = :postId
                 """, Tuple.class)
                 .setParameter("postId", postId)
                 .setMaxResults(100);

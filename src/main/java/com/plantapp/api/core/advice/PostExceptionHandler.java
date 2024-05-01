@@ -1,7 +1,7 @@
 package com.plantapp.api.core.advice;
 
 import com.plantapp.api.core.model.response.ErrorResponse;
-import com.plantapp.api.core.exception.CommunitySharingNotFoundException;
+import com.plantapp.api.core.exception.PostNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -15,11 +15,11 @@ import java.util.List;
 
 @ResponseBody
 @ControllerAdvice
-public class CommunitySharingExceptionHandler {
+public class PostExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(value = CommunitySharingNotFoundException.class)
-    public ErrorResponse handleNotFoundException(CommunitySharingNotFoundException exception, HttpServletRequest request) {
+    @ExceptionHandler(value = PostNotFoundException.class)
+    public ErrorResponse handleNotFoundException(PostNotFoundException exception, HttpServletRequest request) {
         return new ErrorResponse(exception.getMessage(), List.of(), HttpStatus.NOT_FOUND.value(), request.getServletPath());
     }
 

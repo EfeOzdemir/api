@@ -1,10 +1,10 @@
 package com.plantapp.api.core.service;
 
-import com.plantapp.api.core.entity.CommunitySharing;
+import com.plantapp.api.core.entity.Post;
 import com.plantapp.api.core.entity.User;
-import com.plantapp.api.core.exception.CommunitySharingNotFoundException;
+import com.plantapp.api.core.exception.PostNotFoundException;
 import com.plantapp.api.core.model.dto.UserDto;
-import com.plantapp.api.core.repository.CommunitySharingRepository;
+import com.plantapp.api.core.repository.PostRepository;
 import com.plantapp.api.core.repository.LikeRepository;
 import com.plantapp.api.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,23 +20,23 @@ public class LikeService {
 
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
-    private final CommunitySharingRepository communitySharingRepository;
+    private final PostRepository postRepository;
 
-    public List<UserDto> getUsersWhoLikeCommunitySharingById(Long id) {
-        if(!communitySharingRepository.isExistsById(id))
-            throw new CommunitySharingNotFoundException("Community sharing with id not found!");
+    public List<UserDto> getUsersWhoLikePostById(Long id) {
+        if(!postRepository.isExistsById(id))
+            throw new PostNotFoundException("Community post with id not found!");
         return likeRepository.getUsersWhoLike(id);
     }
 
-    @Transactional(readOnly = true)
-    public void likeCommunitySharingById(Long id) {
-        CommunitySharing communitySharing = communitySharingRepository.findLikesById(id)
-                .orElseThrow(() -> new CommunitySharingNotFoundException("Community sharing with id not found!"));
+    @Transactional
+    public void likePostById(Long id) {
+        Post post = postRepository.findLikesById(id)
+                .orElseThrow(() -> new PostNotFoundException("Community post with id not found!"));
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findById(userId).get();
 
-        if(communitySharing.isLikedBy(user)) communitySharing.unlikeBy(user);
-        else communitySharing.likeBy(user);
+        if(post.isLikedBy(user)) post.unlikeBy(user);
+        else post.likeBy(user);
     }
 }
