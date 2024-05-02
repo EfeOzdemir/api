@@ -29,9 +29,8 @@ public class LikeController {
     @SecurityRequirement(name = "jwt-token")
     @Operation(summary = "Likes a community post if it is not liked, unlikes if it is liked.")
     @PostMapping(value = "/{id}/likes")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public APIResponse<Void> likePost(@NotNull @PathVariable Long id) {
         String status = likeService.likePostById(id);
-        return new APIResponse<>(HttpStatus.NO_CONTENT.value(), status, null);
+        return new APIResponse<>(HttpStatus.OK.value(), status, null);
     }
 }

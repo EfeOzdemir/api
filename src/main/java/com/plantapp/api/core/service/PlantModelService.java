@@ -29,7 +29,7 @@ public class PlantModelService {
 
             currentPrediction
                     .ifPresent(huggingFaceResponse ->
-                            result.add(new ModelResponse(huggingFaceResponse.label(), huggingFaceResponse.score(), entry.getValue())));
+                            result.add(new ModelResponse(huggingFaceResponse.label().strip(), huggingFaceResponse.score(), entry.getValue())));
         }
 
         return result.stream().sorted(Comparator.comparingDouble(ModelResponse::score).reversed()).toList();

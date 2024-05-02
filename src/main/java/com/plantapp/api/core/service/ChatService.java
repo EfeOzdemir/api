@@ -18,6 +18,8 @@ import java.util.Map;
 public class ChatService {
 
     private final VertexAIConfigProperties vertexAIConfigProperties;
+    private final String content =
+            "Give me the treatment and symptoms of the '%s' disease. Make it a bullet list. Do not include any external links.";
 
     public Map<String, String> chat(List<String> prompts) {
         try (VertexAI vertexAI = new VertexAI(vertexAIConfigProperties.projectId(), vertexAIConfigProperties.location())) {
@@ -26,7 +28,7 @@ public class ChatService {
 
             prompts.parallelStream().forEach(prompt -> {
                 try {
-                    GenerateContentResponse response = model.generateContent(prompt);
+                    GenerateContentResponse response = model.generateContent(String.format(content, prompt));
                     results.put(prompt, ResponseHandler.getText(response));
                 } catch (IOException e) {
                     throw new RuntimeException(e.getMessage());
