@@ -20,7 +20,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "JOIN users u ON cl.user_id = u.id " +
             "WHERE cl.community_post_id = :postId", nativeQuery = true)
     List<UserDto> findUsersWhoLikeById(@Param("postId") Long postId);
-    @Query(name = "findAllPosts", nativeQuery = true)
+
+    @Query(name = "findAllPosts", countQuery = "", nativeQuery = true)
     Page<PostDto> findAllPosts(@Param("userId") String userId, Pageable pageable);
 
     @Query(name = "findPostById", nativeQuery = true)

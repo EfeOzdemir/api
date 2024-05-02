@@ -2,7 +2,6 @@ package com.plantapp.api.core.service;
 
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
-import com.google.cloud.vertexai.generativeai.ChatSession;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.ResponseHandler;
 import com.plantapp.api.configs.properties.VertexAIConfigProperties;
@@ -27,8 +26,7 @@ public class ChatService {
 
             prompts.parallelStream().forEach(prompt -> {
                 try {
-                    ChatSession chatSession = new ChatSession(model);
-                    GenerateContentResponse response = chatSession.sendMessage(prompt);
+                    GenerateContentResponse response = model.generateContent(prompt);
                     results.put(prompt, ResponseHandler.getText(response));
                 } catch (IOException e) {
                     throw new RuntimeException(e.getMessage());

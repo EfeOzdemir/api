@@ -21,7 +21,7 @@ public class FirebaseConfig {
     @Profile("dev")
     public FirebaseApp firebaseAppDev() throws IOException {
         FirebaseOptions options;
-        try (FileInputStream serviceAccount = new FileInputStream("C:\\Users\\Efe Özdemir\\Desktop\\plant-app.json")) {
+        try (FileInputStream serviceAccount = new FileInputStream("C:\\Users\\Efe Özdemir\\Desktop\\plantapp.json")) {
             options = new FirebaseOptions.Builder()
                     .setCredentials(fromStream(serviceAccount))
                     .build();

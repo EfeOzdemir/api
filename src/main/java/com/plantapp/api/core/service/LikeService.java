@@ -29,14 +29,20 @@ public class LikeService {
     }
 
     @Transactional
-    public void likePostById(Long id) {
+    public String likePostById(Long id) {
         Post post = postRepository.findLikesById(id)
                 .orElseThrow(() -> new PostNotFoundException("Community post with id not found!"));
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findById(userId).get();
 
-        if(post.isLikedBy(user)) post.unlikeBy(user);
-        else post.likeBy(user);
+        if(post.isLikedBy(user)) {
+            post.unlikeBy(user);
+            return "liked";
+        }
+        else {
+            post.likeBy(user);
+            return "unliked";
+        }
     }
 }

@@ -113,7 +113,7 @@ import java.util.*;
                         "FROM post p " +
                         "LEFT JOIN user u ON p.created_by_id = u.id " +
                         "WHERE p.id = :postId",
-                resultSetMapping = "list-post"
+                resultSetMapping = "list-posts"
         ),
         @NamedNativeQuery(
                 name = "findAllPosts.count",
